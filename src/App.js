@@ -23,18 +23,32 @@ class App extends Component {
   }
 
 
-  postMenuItem = (recipe) => {
+  postMenuItem = async menuItem => {
+    const response = await fetch(menuItemUrl + "/create", {
+      method: "post",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      }),
+      body: JSON.stringify(menuItem)
+    })
+    
+    const posts = await response.json();
+
     let {theMenuList} = this.state;
-    theMenuList.unshift(recipe);
+    theMenuList.unshift(menuItem);
     return this.setState({theMenuList});
+
+    return posts
+    
   }
 
-  // deleteMenuItem  = (menuItemId) => {
-  //   const {theMenuList} = this.state;
-  //   let deletedMenuItemArray = theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
-  //   return this.setState({theMenuList: deletedMenuItemArray});
-
+  // postMenuItem = (menuItem) => {
+  //   let {theMenuList} = this.state;
+  //   theMenuList.unshift(menuItem);
+  //   return this.setState({theMenuList});
   // }
+
 
   deleteMenuItem  = (menuItemId) => {
     const deleteURL = menuItemUrl + "/" + menuItemId + "/delete";
