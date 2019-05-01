@@ -23,8 +23,31 @@ class App extends Component {
   }
 
 
-  postMenuItem = async menuItem => {
-    const response = await fetch(menuItemUrl + "/create", {
+  // postMenuItem = async menuItem => {
+  //   let {theMenuList} = this.state;
+    
+  //   const response = await fetch(menuItemUrl + "/create", {
+  //     method: "post",
+  //     headers: new Headers({
+  //       "Content-Type": "application/json",
+  //       Accept: "application/json"
+  //     }),
+  //     body: JSON.stringify(menuItem)
+  //   })
+  //   const posts = await response.json();
+    
+  //   console.log("posts recieved", posts)
+
+  
+  //   theMenuList.unshift(menuItem);
+  //   return this.setState({theMenuList});
+
+  //   return posts
+    
+  // }
+
+  postMenuItem = (menuItem) => {
+    return fetch(menuItemUrl + "/create", {
       method: "post",
       headers: new Headers({
         "Content-Type": "application/json",
@@ -32,14 +55,12 @@ class App extends Component {
       }),
       body: JSON.stringify(menuItem)
     })
-    
-    const posts = await response.json();
-
-    let {theMenuList} = this.state;
-    theMenuList.unshift(menuItem);
-    return this.setState({theMenuList});
-
-    return posts
+    .then(response => response.json())
+    .then(() => {
+      let {theMenuList} = this.state;
+      theMenuList.unshift(menuItem);
+      return this.setState({theMenuList});
+    });
     
   }
 
