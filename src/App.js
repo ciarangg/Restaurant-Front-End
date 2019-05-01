@@ -27,14 +27,33 @@ class App extends Component {
     return this.setState({theMenuList});
   }
 
+  deleteMenuItem  = (menuItemId) => {
+    const {theMenuList} = this.state;
+    let deletedMenuItemArray = theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
+    return this.setState({theMenuList: deletedMenuItemArray});
+
+  }
+
+  editMenuItem = (menuItemId, editedMenuItem) => {
+    const {theMenuList} = this.state;
+
+    let deleteEditMenuItemArray = theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
+
+    deleteEditMenuItemArray.unshift(editedMenuItem);
+
+    return this.setState({theMenuList: deleteEditMenuItemArray});
+
+
+  }
   render() {
 
     let {theMenuList} = this.state
+    console.log(theMenuList)
 
     return (       
 
       <div className="App">
-        <MenuList key={theMenuList.id} theMenuList={theMenuList} />
+        <MenuList key={theMenuList.id} theMenuList={theMenuList} deleteMenuItem ={this.deleteMenuItem } editMenuItem ={this.editMenuItem } />
         <CreateMenuItem postMenuItem={this.postMenuItem}/>
       </div>
     )

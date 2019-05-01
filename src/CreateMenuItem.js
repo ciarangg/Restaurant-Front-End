@@ -24,20 +24,17 @@ class CreateMenuItem extends Component {
     }
 
 
-        handleSubmit = (event) => {
-            event.preventDefault();
+    handleSubmit = (event) => {
+        event.preventDefault();
             
-            const CONSTANTRECIPE = this.state.newMenuItem
-            let {postMenuItem} = this.props
+        const CONSTANTRECIPE = this.state.newMenuItem
+        let {postMenuItem} = this.props
     
-            postMenuItem(CONSTANTRECIPE)
-            this.setState({newMenuItem: {... blankMenuItem}})
-        }
+        postMenuItem(CONSTANTRECIPE)
+        this.setState({newMenuItem: {... blankMenuItem}})
+    }
 
     render() {
-
-        // let {newRecipe} = this.state
-
 
 
 
