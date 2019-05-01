@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import './App.css';
-import MenuList from './MenuList';
-import CreateMenuItem from './CreateMenuItem';
+import MenuList from './Components/MenuList';
+import CreateMenuItem from './Components/CreateMenuItem';
+
+const menuItemUrl = 'http://localhost:5000/menu'
 
 class App extends Component {
   constructor(props) {
@@ -15,7 +17,7 @@ class App extends Component {
   }
 
   getMenu = () => {
-    return fetch('http://localhost:5000/menu')
+    return fetch(menuItemUrl)
       .then(response => response.json())
       .then(theList => this.setState({theMenuList: theList}))
   }
@@ -27,12 +29,39 @@ class App extends Component {
     return this.setState({theMenuList});
   }
 
-  deleteMenuItem  = (menuItemId) => {
-    const {theMenuList} = this.state;
-    let deletedMenuItemArray = theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
-    return this.setState({theMenuList: deletedMenuItemArray});
+  // deleteMenuItem  = (menuItemId) => {
+  //   const {theMenuList} = this.state;
+  //   let deletedMenuItemArray = theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
+  //   return this.setState({theMenuList: deletedMenuItemArray});
 
+  // }
+
+  deleteMenuItem  = (menuItemId) => {
+    const deleteURL = menuItemUrl + "/" + menuItemId + "/delete";
+    return fetch(deleteURL, {
+          method: "delete"
+        })
+        .then(resp => {
+          if (!resp.ok) {
+            if (resp.status >= 400 && resp.status < 500) {
+              return resp.json().then(data => {
+                let err = { errorMessage: data.message };
+                throw err;
+              });
+            } else {
+              let err = {
+                errorMessage: "Please try again later, server is not responding"
+              };
+              throw err;
+            }
+          }
+        })
+        .then(() => {
+          const deletedMenuItemArray = this.state.theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
+          this.setState({theMenuList: deletedMenuItemArray});
+        });
   }
+  
 
   editMenuItem = (menuItemId, editedMenuItem) => {
     const {theMenuList} = this.state;
