@@ -1,32 +1,30 @@
 import React, { Component } from 'react';
+import DeleteForm from './DeleteForm';
+import EditForm from './EditForm';
 import MenuItem from './MenuItem';
-import EditForm  from './EditForm';
-import DeleteForm  from './DeleteForm';
-
 
 class MenuList extends Component {
-
     render() {
-
-        let {theMenuList} = this.props
-
-        let menuItems = theMenuList.map((menuItem) => {
-            return (<div>
+        const { menuItemList, deleteMenuItem, editMenuItem } = this.props;
+        return menuItemList.map(menuItem => {
+            console.log(menuItem);
+            return (
+                <div key={menuItem._id}>
                     <MenuItem key={menuItem.id} info={menuItem} />
                     <br />
-                    <DeleteForm menuItemId={menuItem._id} deleteMenuItem={this.props.deleteMenuItem} />
+                    <DeleteForm
+                        menuItemId={menuItem._id}
+                        deleteMenuItem={deleteMenuItem}
+                    />
                     <br />
-                    <EditForm editState={menuItem} editMenuItem={this.props.editMenuItem} />
-                    </div>
-                     )
-        })
-
-        return ( <div>
-                    <h1><u>Menu</u></h1>
-                    {menuItems}
+                    <EditForm
+                        editState={menuItem}
+                        editMenuItem={editMenuItem}
+                    />
                 </div>
-        );
+            );
+        });
     }
 }
 
-export default MenuList
+export default MenuList;
