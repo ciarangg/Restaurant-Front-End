@@ -1,127 +1,110 @@
-import React, { Component } from 'react'
+// Axios is a library for making HTTP requests, fetch is a good API but I've found that axios is preferred an more widely used
+import axios from 'axios';
+import React, { Component } from 'react';
 import './App.css';
-import MenuList from './Components/MenuList';
 import CreateMenuItem from './Components/CreateMenuItem';
+import MenuList from './Components/MenuList';
 
-const menuItemUrl = 'http://localhost:5000/menu'
+const menuItemUrl = 'http://localhost:5000/menu';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {theMenuList: []};
-  }
+    state = {
+        menuItemList: [],
+    };
 
-
-  componentDidMount() {
-    this.getMenu();
-  }
-
-  getMenu = () => {
-    return fetch(menuItemUrl)
-      .then(response => response.json())
-      .then(theList => this.setState({theMenuList: theList}))
-  }
-
-
-  // postMenuItem = async menuItem => {
-  //   let {theMenuList} = this.state;
-    
-  //   const response = await fetch(menuItemUrl + "/create", {
-  //     method: "post",
-  //     headers: new Headers({
-  //       "Content-Type": "application/json",
-  //       Accept: "application/json"
-  //     }),
-  //     body: JSON.stringify(menuItem)
-  //   })
-  //   const posts = await response.json();
-    
-  //   console.log("posts recieved", posts)
-
-  
-  //   theMenuList.unshift(menuItem);
-  //   return this.setState({theMenuList});
-
-  //   return posts
-    
-  // }
-
-  postMenuItem = (menuItem) => {
-    return fetch(menuItemUrl + "/create", {
-      method: "post",
-      headers: new Headers({
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      }),
-      body: JSON.stringify(menuItem)
-    })
-    .then(response => response.json())
-    .then(() => {
-      let {theMenuList} = this.state;
-      theMenuList.unshift(menuItem);
-      return this.setState({theMenuList});
-    });
-    
-  }
-
-  // postMenuItem = (menuItem) => {
-  //   let {theMenuList} = this.state;
-  //   theMenuList.unshift(menuItem);
-  //   return this.setState({theMenuList});
-  // }
-
-
-  deleteMenuItem  = (menuItemId) => {
-    const deleteURL = menuItemUrl + "/" + menuItemId + "/delete";
-    return fetch(deleteURL, {
-          method: "delete"
+    async componentDidMount() {
+        let menu = await this.getMenu();
+        this.setState({
+          menuItemList: menu,
         })
-        .then(resp => {
-          if (!resp.ok) {
-            if (resp.status >= 400 && resp.status < 500) {
-              return resp.json().then(data => {
-                let err = { errorMessage: data.message };
-                throw err;
-              });
-            } else {
-              let err = {
-                errorMessage: "Please try again later, server is not responding"
-              };
-              throw err;
-            }
-          }
+    }
+
+    getMenu = async () => {
+        let menu = await axios
+            .get(`${menuItemUrl}`)
+            .then(({ data }) => {
+                return data;
+            })
+            .catch(error =>
+                console.log(`There was an error: ${error.message}`),
+            );
+
+        return menu;
+    };
+
+    postMenuItem = menuItem => {
+        let newMenuItem = axios
+            .post(`${menuItemUrl}/create`, menuItem)
+            .then((item, error) => {
+                if (error) {
+                    throw new Error(`
+          There was an error creating a new menu item
+          Error: ${error.message}  
+        `);
+                }
+                console.log(item);
+                return item;
+            });
+        return newMenuItem;
+    };
+
+    deleteMenuItem = menuItemId => {
+        const deleteURL = menuItemUrl + '/' + menuItemId + '/delete';
+        return fetch(deleteURL, {
+            method: 'delete',
         })
-        .then(() => {
-          const deletedMenuItemArray = this.state.theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
-          this.setState({theMenuList: deletedMenuItemArray});
+            .then(resp => {
+                if (!resp.ok) {
+                    if (resp.status >= 400 && resp.status < 500) {
+                        return resp.json().then(data => {
+                            let err = { errorMessage: data.message };
+                            throw err;
+                        });
+                    } else {
+                        let err = {
+                            errorMessage:
+                                'Please try again later, server is not responding',
+                        };
+                        throw err;
+                    }
+                }
+            })
+            .then(() => {
+                const deletedMenuItemArray = this.state.menuItemList.filter(
+                    menuItem => {
+                        return menuItem._id !== menuItemId;
+                    },
+                );
+                this.setState({ menuItemList: deletedMenuItemArray });
+            });
+    };
+
+    editMenuItem = (menuItemId, editedMenuItem) => {
+        const { menuItemList } = this.state;
+
+        let deleteEditMenuItemArray = menuItemList.filter(menuItem => {
+            return menuItem._id !== menuItemId;
         });
-  }
-  
 
-  editMenuItem = (menuItemId, editedMenuItem) => {
-    const {theMenuList} = this.state;
+        deleteEditMenuItemArray.unshift(editedMenuItem);
 
-    let deleteEditMenuItemArray = theMenuList.filter(menuItem => {return menuItem._id !== menuItemId})
+        return this.setState({ menuItemList: deleteEditMenuItemArray });
+    };
+    render() {
+        const { menuItemList } = this.state;
+        console.log(menuItemList);
 
-    deleteEditMenuItemArray.unshift(editedMenuItem);
-
-    return this.setState({theMenuList: deleteEditMenuItemArray});
-
-
-  }
-  render() {
-
-    let {theMenuList} = this.state
-    console.log(theMenuList)
-
-    return (       
-
-      <div className="App">
-        <MenuList key={theMenuList.id} theMenuList={theMenuList} deleteMenuItem ={this.deleteMenuItem } editMenuItem ={this.editMenuItem } />
-        <CreateMenuItem postMenuItem={this.postMenuItem}/>
-      </div>
-    )
-  }
+        return (
+            <div className="App">
+                <MenuList
+                    menuItemList={menuItemList}
+                    deleteMenuItem={this.deleteMenuItem}
+                    editMenuItem={this.editMenuItem}
+                />
+                <CreateMenuItem postMenuItem={this.postMenuItem} />
+            </div>
+        );
+    }
 }
 
 export default App;
